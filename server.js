@@ -32,13 +32,14 @@ app.get('/user', function (req, res) {
         && queryParams.hasOwnProperty('limit') && _.isNumber(parseInt(queryParams.limit, 10))) {
         var limit = parseInt(queryParams.limit, 10);
         var page = parseInt(queryParams.page, 10);
-        var offset = (page-1) * limit;
-        new Users()
-            .query()
-            .limit(limit)
-            .offset(offset)
-            .then(function (collection){
-                res.json(collection);
+
+        Users
+            .fetchPage({
+                pageSize: limit, 
+                page: page
+            })
+            .then(function (results) {
+                res.send(results.models); 
             }).catch(function (error) {
                 console.log(error);
             });
@@ -52,17 +53,15 @@ app.get('/user', function (req, res) {
                 res.send('error');
             });
     }
-
-
 });
 
-//show by user id
+//show by user detail by id
 app.get('/user/:id', function (req, res) {
     var id_user = parseInt(req.params.id, 10);
 
     new Users()
         .where({
-            user_id: id_user
+            id: id_user
         }).fetch()
         .then(function (user) {
             res.send(user.toJSON());
@@ -72,7 +71,7 @@ app.get('/user/:id', function (req, res) {
         });
 });
 
-//create user
+//create new user
 app.post('/user', function (req, res) {
     var user = _.pick(req.body, 'nama', 'password');
 
@@ -91,7 +90,7 @@ app.post('/user', function (req, res) {
         });
 });
 
-//update user
+//update user by id
 app.put('/user/:id', function (req, res) {
     var id_user = parseInt(req.params.id, 10);
 
@@ -112,7 +111,7 @@ app.put('/user/:id', function (req, res) {
 
     new Users()
         .where({
-            user_id: id_user
+            id: id_user
         }).save(
         validAtrributes,
         { patch: true } //hanya atribut yang ada di method save yang disimpan
@@ -125,13 +124,13 @@ app.put('/user/:id', function (req, res) {
         });
 });
 
-//delete User
+//delete User by id
 app.delete('/user/:id', function (req, res) {
     var id_user = req.params.id;
 
     new Users()
         .where({
-            user_id: id_user
+            id: id_user
         }).destroy()
         .then(function (model) {
             res.send(model.toJSON());
