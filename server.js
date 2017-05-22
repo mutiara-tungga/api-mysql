@@ -1,11 +1,14 @@
 var bookshelf = require('./bookshelf');
+bookshelf.plugin('pagination');
+
 var express = require('express');
 var app = express();
+
 var bodyParser = require('body-parser');
+app.use(bodyParser.json());
+
 var _ = require('underscore');
 var PORT = 3000;
-
-app.use(bodyParser.json());
 
 //mendefinisikan model user
 var Users = bookshelf.Model.extend({
@@ -23,17 +26,32 @@ var Users = bookshelf.Model.extend({
 //showAll user
 app.get('/user', function (req, res) {
     var queryParams = req.query;
-    console.log(typeof queryParams.page);
-    
-    new Users()
-        .fetchAll()
-        .then(function (users) {
-            res.send(users.toJSON());
-        }).catch(function (error) {
-            console.log(error);
-            res.send('error');
-        });
-    
+
+    //cek apakah ada query param page dan limit
+    if (queryParams.hasOwnProperty('page') && _.isNumber(parseInt(queryParams.page, 10))
+        && queryParams.hasOwnProperty('limit') && _.isNumber(parseInt(queryParams.limit, 10))) {
+        var limit = parseInt(queryParams.limit, 10);
+        var page = parseInt(queryParams.page, 10);
+        var offset = (page-1) * limit;
+        new Users()
+            .query()
+            .limit(limit)
+            .offset(offset)
+            .then(function (collection){
+                res.json(collection);
+            }).catch(function (error) {
+                console.log(error);
+            });
+    } else {
+        new Users()
+            .fetchAll()
+            .then(function (users) {
+                res.send(users.toJSON());
+            }).catch(function (error) {
+                console.log(error);
+                res.send('error');
+            });
+    }
 
 
 });
