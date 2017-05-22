@@ -57,11 +57,11 @@ app.get('/user', function (req, res) {
 
 //show by user detail by id
 app.get('/user/:id', function (req, res) {
-    var id_user = parseInt(req.params.id, 10);
+    var idUser = parseInt(req.params.id, 10);
 
     new Users()
         .where({
-            id: id_user
+            id: idUser
         }).fetch()
         .then(function (user) {
             res.send(user.toJSON());
@@ -92,7 +92,7 @@ app.post('/user', function (req, res) {
 
 //update user by id
 app.put('/user/:id', function (req, res) {
-    var id_user = parseInt(req.params.id, 10);
+    var idUser = parseInt(req.params.id, 10);
 
     var body = _.pick(req.body, 'nama', 'password');
     var validAtrributes = {};
@@ -111,7 +111,7 @@ app.put('/user/:id', function (req, res) {
 
     new Users()
         .where({
-            id: id_user
+            id: idUser
         }).save(
         validAtrributes,
         { patch: true } //hanya atribut yang ada di method save yang disimpan
@@ -126,11 +126,11 @@ app.put('/user/:id', function (req, res) {
 
 //delete User by id
 app.delete('/user/:id', function (req, res) {
-    var id_user = req.params.id;
+    var idUser = req.params.id;
 
     new Users()
         .where({
-            id: id_user
+            id: idUser
         }).destroy()
         .then(function (model) {
             res.send(model.toJSON());
