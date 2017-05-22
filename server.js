@@ -25,7 +25,8 @@ app.get('/user', function (req, res) {
     var queryParams = req.query;
     console.log(typeof queryParams.page);
     
-    new Users().fetchAll()
+    new Users()
+        .fetchAll()
         .then(function (users) {
             res.send(users.toJSON());
         }).catch(function (error) {
@@ -41,9 +42,10 @@ app.get('/user', function (req, res) {
 app.get('/user/:id', function (req, res) {
     var id_user = parseInt(req.params.id, 10);
 
-    new Users().where({
-        user_id: id_user
-    }).fetch()
+    new Users()
+        .where({
+            user_id: id_user
+        }).fetch()
         .then(function (user) {
             res.send(user.toJSON());
         }).catch(function (error) {
@@ -62,7 +64,8 @@ app.post('/user', function (req, res) {
     }
 
     //jika sesuai akan masuk di bawah ini
-    new Users(user).save()
+    new Users(user)
+        .save()
         .then(function (model) {
             res.send(model.toJSON());
         }).catch(function (error) {
@@ -89,9 +92,10 @@ app.put('/user/:id', function (req, res) {
         return res.status(400).send();
     }
 
-    new Users().where({
-        user_id: id_user
-    }).save(
+    new Users()
+        .where({
+            user_id: id_user
+        }).save(
         validAtrributes,
         { patch: true } //hanya atribut yang ada di method save yang disimpan
         ).then(function (model) {
@@ -101,10 +105,23 @@ app.put('/user/:id', function (req, res) {
             console.log(error);
             res.send('Error');
         });
-})
+});
 
 //delete User
+app.delete('/user/:id', function (req, res) {
+    var id_user = req.params.id;
 
+    new Users()
+        .where({
+            user_id: id_user
+        }).destroy()
+        .then(function (model) {
+            res.send(model.toJSON());
+        }).catch(function (error) {
+            console.log(error);
+            res.send("error");
+        });
+})
 
 app.listen(PORT, function () {
     console.log('Express port : ' + PORT);
